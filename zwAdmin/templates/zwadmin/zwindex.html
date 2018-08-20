@@ -1,0 +1,36 @@
+{% extends 'zwadmin/index.html' %}
+{% block extra %}
+{% endblock %}
+
+{% block right_container %}
+  <ol class="breadcrumb">
+    <li class="'active">Home</li>
+  </ol>
+
+
+   <h2 class="page-header">App</h2>
+   <div>
+   {% for app_name,app_tables in site.global_app.items %}
+
+       <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{{ app_name }}</th>
+            </tr>
+        </thead>
+       <tbody>
+        {% for table_name in app_tables %}
+            <tr>
+                <td><a href="{% url 'table_fields' app_name table_name %}">{{ table_name }}</a></td>
+                <td><a href="{% url 'table_fields_add' app_name table_name %}">增加</a></td>
+                <td><a href="{% url 'table_fields' app_name table_name %}">修改</a></td>
+            </tr>
+        {% endfor %}
+       </tbody>
+       </table>
+
+   {% endfor %}
+   </div>
+{% endblock %}
+{% block my_jquery %}
+{% endblock %}

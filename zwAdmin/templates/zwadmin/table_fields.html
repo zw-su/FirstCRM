@@ -1,0 +1,141 @@
+{% extends 'zwadmin/index.html' %}
+{% load zwAdmin_tags %}
+{% block extra %}
+{% endblock %}
+
+{% block right_container %}
+    <ol class="breadcrumb">
+    <li><a href="{% url 'zw_index' %}">Home</a></li>
+     <li><a href="{% url 'zw_index' %}">{{ app_name }}</a></li>
+    <li class="active">{{ table_name }}</li>
+  </ol>
+   <h2 class="page-header">App</h2>
+   <div>
+       <div>
+           <form>
+                <input type="search" name="_q" value="{{ admin_class.search_key }}"
+                  placeholder="{% for is_search in admin_class.search_fields %}{{ is_search }}, {% endfor %}">
+                <input type="submit" value="搜索">
+               {% for k, v in admin_class.filter_dic.items %}
+                   <input type="hidden" name='{{ k }}' value='{{ v }}' >
+
+               {% endfor %}
+
+           </form>
+       </div>
+
+
+    <div>
+    {% if admin_class.list_filter %}
+        <form >
+        {% for filter_field in admin_class.list_filter %}
+
+                {% build_filter_ele filter_field admin_class %}
+
+        {% endfor %}
+        <input type="hidden" name="_o" value={% get_sorted_result sorted_field %} >
+        <input type='submit' value='过滤' >
+        </form>
+    {% endif %}
+   </div>
+
+    <form onsubmit="return ActionCheck(this)" method="post">
+    {% csrf_token %}
+        <div class="form-group">
+
+       <span class="col-sm-1 ">Action:</span>
+        <div class="col-sm-6">
+           <select name="action" style="width:150px;">
+               <option value="">-----</option>
+               {% for action in admin_class.actions %}
+                <option value="{{ action }}">{{ action }}</option>
+               {% endfor %}
+           </select>
+           <input type="submit" value="GO">
+        </div>
+        </div>
+    </form>
+
+       <table class="table table-striped">
+        <thead>
+            <tr>
+                {% if admin_class.list_display %}
+                     <th> <input tag="all_choice" type="checkbox" ></th>
+                    {% for field in admin_class.list_display %}
+
+                        <th>
+                            <a href="?_o={% get_sorted_field field sorted_field forloop %}
+                                  {% filter_order_args admin_class %}  ">
+                            {{ field }}</a>
+                         {% get_sorted_icon field sorted_field %}
+                        </th>
+                    {% endfor %}
+                {% else %}
+                     <th>{% get_model_name admin_class %}</th>
+                {% endif %}
+            </tr>
+        </thead>
+       <tbody>
+
+             {% for data in datas %}
+                <tr>
+                    <td> <input row-select="true" type="checkbox" value="{{ data.id }}" ></td>
+                    {% build_table_row data admin_class %}
+                </tr>
+             {% endfor %}
+
+       </tbody>
+       </table>
+
+        <nav aria-label="Page navigation">
+
+            {% render_pagination datas admin_class sorted_field %}
+        </nav>
+
+
+   </div>
+
+{% endblock %}
+{% block my_jquery %}
+ <script type="text/javascript">
+    $(function(){
+        $('thead tr th input[tag="all_choice"]').click(function(){
+
+       if ($('thead tr th input[tag="all_choice"]').prop('checked')){
+
+        $('tbody tr td input[row-select]').prop('checked',true)
+    } else {
+          $('tbody tr td input[row-select]').prop('checked',false)
+       }
+       })
+    });
+    function ActionCheck(ele) {
+        var select_data = $('select[name="action"]').val();
+        var checked_data = $('input[row-select]').filter(':checked');
+       if (!select_data) {
+            alert('没有选择Action!');
+            console.log(checked_data.length);
+           return false;
+
+       } if (checked_data.length==0) {
+            alert('没有选择具体的内容!');
+           return false;
+        }else {
+           var checked_list = [];
+
+           $.each(checked_data,function(){
+               console.log($(this).val());
+               checked_list.push($(this).val());
+                })
+            console.log(checked_list);
+            input_ele = "<input type='hidden' name='check_list' " +
+                        "value="+JSON.stringify(checked_list)+">"
+            $(ele).append(input_ele);
+
+        }
+        return true
+    }
+
+</script>
+{% endblock %}
+

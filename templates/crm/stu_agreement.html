@@ -1,0 +1,96 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block extra %}
+    <link href="{% static 'plugins/dropzone/dropzone.css' %}" rel="stylesheet">
+{% endblock %}
+{% block body %}
+    <h2>学员在线报名</h2>
+
+    <div>
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">学员报名信息</h3>
+        </div>
+        <div class="panel-body">
+            <form class="form" method="post" onsubmit="beforesubmit(this)">
+            {% csrf_token %}
+            {% for field in stu_forms %}
+                <div class="form-group col-lg-6">
+                    <label  class="col-sm-2 control-label">{{ field.label }}</label>
+                    <div class="col-sm-6" >
+                        {{ field }}
+                        <span style="color:red;"> {{ field.errors.0 }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="form-group col-lg-6">
+                <label  class="col-sm-2 control-label">报名班级</label>
+                <div class="col-sm-6" >
+                    {{ stu_obj.class_grade }}
+                </div>
+            </div>
+            <div class="form-group col-lg-6">
+                <label  class="col-sm-2 control-label">学费</label>
+                <div class="col-sm-6" >
+                    {{ stu_obj.class_grade.course.price }}
+                </div>
+            </div>
+             <hr>
+            <div>
+            <pre style="height: 200px;">{{ stu_obj.class_grade.contract_template.content }}</pre>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-0 col-sm-10">
+                    <input type="checkbox" name="contract_agreed">我已认真阅读，并同意此合同
+                <input type="submit" class="btn btn-success " value="提交" >
+                </div>
+            </div>
+
+            </form>
+        <hr>
+        <div>
+        <form action="{% url 'stu_fileupload' obj_id %}" class="dropzone" id="myAwesomeDropzone">
+           <div class="fallback">
+                <input name="file" type="file" multiple />
+            </div>
+        </form>
+            </div>
+
+
+        </div>
+        <div class="panel-footer">Panel footer</div>
+    </div>
+    </div>
+
+
+
+{% endblock %}
+{% block my_jquery %}
+    <script src="{% static 'plugins/dropzone/dropzone.js' %}"></script>
+    <script>
+    function beforesubmit(ele) {
+        $(':disabled').removeAttr('disabled')
+
+    }
+    Dropzone.options.myAwesomeDropzone = {
+        paramName: "file", // The name that will be used to transfer the file
+        maxFilesize: 2, // MB
+        maxFiles: 3,
+        accept: function(file, done) {
+        if (file.name == "justinbieber.jpg") {
+        done("Naha, you don't.");
+     }
+        else { done(); }
+    }
+    };
+    $(function() {
+{#        Dropzone.options.myAwesomeDropzone = false;#}
+        var myDropzone = new Dropzone('#myAwesomeDropzone');
+        myDropzone.on("complete", function (file) {
+            myDropzone.removeFile(file);
+        })
+    });
+
+    </script>
+{% endblock %}

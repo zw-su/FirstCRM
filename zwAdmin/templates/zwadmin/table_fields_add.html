@@ -1,0 +1,20 @@
+{% extends 'zwadmin/index.html' %}
+{% load zwAdmin_tags %}
+{% block extra %}
+{% endblock %}
+
+{% block right_container %}
+    <ol class="breadcrumb">
+    <li><a href="{% url 'zw_index' %}">Home</a></li>
+     <li><a href="{% url 'zw_index' %}">{{ app_name }}</a></li>
+    <li class="active">{{ model_name }}</li>
+  </ol>
+   <h2 class="page-header">{% get_model_name admin_class %}</h2>
+    <h4 class="page-header">添加</h4>
+
+   <div>
+
+   {% include 'zwadmin/field_change_body.html' %}
+
+   </div>
+{% endblock %}

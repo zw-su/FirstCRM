@@ -1,0 +1,30 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block extra %}
+    <link href='{% static "css/login.css" %}' rel="stylesheet">
+{% endblock %}
+{% block body %}
+     <div class="container">
+
+      <form class="form-signin" method="post">
+          {% csrf_token %}
+        <h2 class="form-signin-heading">FirstCRM login</h2>
+        <label for="username" class="sr-only">用户名</label>
+        <input type="text" name="username" class="form-control" placeholder="username" required autofocus>
+        <label for="password" class="sr-only">密码</label>
+        <input type="password" name="password" class="form-control" placeholder="Password" required>
+        <div style="color:red;">
+          {{ error }}
+        </div>
+         
+          <div class="checkbox">
+            <label>
+            <input type="checkbox" value="remember-me"> Remember me
+          </label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+
+    </div> <!-- /container -->
+{% endblock %}

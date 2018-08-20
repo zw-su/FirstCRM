@@ -1,0 +1,63 @@
+   {% load zwAdmin_tags %}
+    <form class="form-horizontal" method="post">
+        {% csrf_token %}
+            {% for field in form_obj %}
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">{{ field.label }}</label>
+                    <div class="col-sm-10">
+                    {% if field.name not in admin_class.filter_horizontal %}
+                           {{ field }}
+
+                    {% else %}
+                          <div class="col-lg-5" >
+                                <select multiple id="select_to">
+
+                                    {% get_horizontal_avail admin_class field.name form_obj as horizontal_avail %}
+                                    {% for obj in horizontal_avail %}
+                                        <option value="{{ obj.id }}">{{ obj }}</option>
+
+                                    {% endfor %}
+                                </select>
+                             </div>
+                             <div class="col-lg-5" >
+                                    <select multiple id="select_from" name="{{ field.name }}">
+
+                                    {% get_horizontal_select admin_class field.name form_obj as horizontal_select %}
+                                    {% for obj in horizontal_select %}
+                                        <option value="{{ obj.id }}">{{ obj }}</option>
+
+                                    {% endfor %}
+                                </select>
+                             </div>
+
+
+                    {% endif %}
+                   <span style="color:red;">{{ field.errors.0 }}</span>
+                </div>
+            </div>
+            {% endfor %}
+            {% if admin_class.change_form %}
+                {% for readonly_field in admin_class.readonly_fields %}
+                     <div class="form-group">
+                        <label  class="col-sm-2 control-label">{{ readonly_field }}</label>
+                        <div class="col-sm-10">
+                            {% get_readonly_field_val readonly_field form_obj %}
+                        </div>
+                     </div>
+                {% endfor %}
+            {% endif %}
+        <div class="form-group">
+            <div class="col-sm-offset-11 col-sm-10">
+                <button type="submit" class="btn btn-info">保存</button>
+            </div>
+        </div>
+   </form>
+
+
+
+{#<script>#}
+{#    $('#select_from option').click(function(){#}
+{#        console.log('ok')#}
+{##}
+{#    })#}
+{#</script>#}
