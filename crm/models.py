@@ -9,7 +9,11 @@ class UserProfile(models.Model):
     role = models.ManyToManyField('Role', blank=True)
 
     def __str__(self):
-        return self.name
+        return '%s' % self.name
+
+    class Meta:
+        verbose_name = '用户信息总表'
+        verbose_name_plural = '用户信息总表'
 
 class Role(models.Model):
     """角色表"""
@@ -17,7 +21,11 @@ class Role(models.Model):
     menus = models.ManyToManyField('Menus', blank=True)
 
     def __str__(self):
-        return self.name
+        return '%s' % self.name
+
+    class Meta:
+        verbose_name = '角色表'
+        verbose_name_plural = '角色表'
 
 class CustomerInfo(models.Model):
     """客户信息表"""
@@ -50,8 +58,8 @@ class CustomerInfo(models.Model):
         return '%s' % self.name
 
     class Meta:
-        verbose_name = '客户信息'
-        verbose_name_plural = '客户信息'
+        verbose_name = '客户信息表'
+        verbose_name_plural = '客户信息表'
 
 
 class Student(models.Model):
@@ -60,7 +68,12 @@ class Student(models.Model):
     class_grades = models.ManyToManyField('ClassList')
 
     def __str__(self):
-        return self.customer
+        return '%s' % self.customer
+
+    class Meta:
+        verbose_name = '学员表'
+        verbose_name_plural = '学员表'
+
 
 
 class CustomerFollowUp(models.Model):
@@ -78,6 +91,11 @@ class CustomerFollowUp(models.Model):
     def __str__(self):
         return self.content
 
+    class Meta:
+        verbose_name = '客户跟踪记录表'
+        verbose_name_plural = '客户跟踪记录表'
+
+
 class Course(models.Model):
     """课程表"""
     name = models.CharField(verbose_name='课程名称', max_length=64, unique=True)
@@ -87,6 +105,10 @@ class Course(models.Model):
 
     def __str__(self):
         return '%s' % self.name
+
+    class Meta:
+        verbose_name = '课程表'
+        verbose_name_plural = '课程表'
 
 
 class ClassList(models.Model):
@@ -107,6 +129,8 @@ class ClassList(models.Model):
 
     class Meta:
         unique_together = ('branch', 'class_type', 'course', 'semester')
+        verbose_name = '班级表'
+        verbose_name_plural = '班级表'
 
 class CourseRecord(models.Model):
     """上课记录表"""
@@ -124,6 +148,8 @@ class CourseRecord(models.Model):
 
     class Meta:
         unique_together = ('class_grade', 'day_num')
+        verbose_name = '上课记录表'
+        verbose_name_plural = '上课记录表'
 
 
 class StudyRecord(models.Model):
@@ -155,6 +181,11 @@ class StudyRecord(models.Model):
     def __str__(self):
         return "%s %s %s" % (self.course_record, self.student, self.score)
 
+    class Meta:
+        verbose_name = '学习记录表'
+        verbose_name_plural = '学习记录表'
+
+
 
 class Branch(models.Model):
     """校区"""
@@ -164,6 +195,11 @@ class Branch(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = '校区表'
+        verbose_name_plural = '校区表'
+
 
 
 class Menus(models.Model):
@@ -178,16 +214,22 @@ class Menus(models.Model):
 
     class Meta:
         unique_together = ('name', 'url_name')
+        verbose_name = '动态菜单'
+        verbose_name_plural = '动态菜单'
 
 
 class ContractTemplate(models.Model):
     '''合同模板'''
     name = models.CharField(max_length=64)
     content = models.TextField()
-    date = models.DateField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return '%s' % self.name
+
+    class Meta:
+        verbose_name = '合同模板'
+        verbose_name_plural = '合同模板'
 
 
 class StudentApply(models.Model):
@@ -196,11 +238,13 @@ class StudentApply(models.Model):
     class_grade = models.ForeignKey('ClassList')
     consultant = models.ForeignKey('UserProfile')
     contract_agreed = models.BooleanField(default=False)
-    contract_agreed_date = models.DateField(blank=True, null=True, verbose_name='合同签订时间')
+    contract_agreed_date = models.DateTimeField(blank=True, null=True, verbose_name='合同同意时间')
     contract_approved = models.BooleanField(default=False)
-    contract_approved_date = models.DateField(blank=True, null=True, verbose_name='合同审核时间')
+    contract_approved_date = models.DateTimeField(blank=True, null=True, verbose_name='合同审核时间')
 
     class Meta:
+        verbose_name = '学员报名'
+        verbose_name_plural = '学员报名'
         unique_together = ('customer', 'class_grade')
 
     def __str__(self):
@@ -212,9 +256,14 @@ class PaymentRecord(models.Model):
     apply_info = models.ForeignKey('StudentApply')
     consultant = models.ForeignKey('UserProfile')
     payment_type_choice = ((0, '报名费'), (1, '学费'), (2, '退费'))
-    payment_type = models.SmallIntegerField(choices=payment_type_choice,default=0)
-    payment = models.IntegerField('费用',default=500)
-    date = models.DateField(auto_now_add=True)
+    payment_type = models.SmallIntegerField(choices=payment_type_choice,
+                                            default=0)
+    payment = models.IntegerField('费用', default=500)
+    date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return '%s' % self.apply_info
+
+    class Meta:
+        verbose_name = '学员缴费'
+        verbose_name_plural = '学员缴费'

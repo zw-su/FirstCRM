@@ -1,9 +1,9 @@
 {% extends 'index.html' %}
 
 {% block right-body-content %}
-    <h2>学生报名详细页</h2>
+    <h2>学生报名生成合同页</h2>
 
-    <form class="form-horizontal" method="post" >
+    <div class="form-horizontal">
     {% csrf_token %}
         <div class="form-group">
             <label  class="col-sm-2 control-label">客户</label>
@@ -25,16 +25,79 @@
              </select>
             </div>
         </div>
-
         <div class="form-group">
-        <div class="col-sm-offset-6 col-sm-10">
-          <input type="submit" class="btn btn-success " value="下一步" >
+                <label  class="col-sm-2 control-label">合同状态</label>
+                <div class="col-sm-10" style="width:320px;" >
+                    <div id="contract_status" style="color:limegreen;"></div>
+                </div>
+            </div>
+    </div>
+     <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-10" id="change_btn_type">
+
         </div>
         </div>
-    </form>
-    {% if enrollment_link %}
-    <p>请将此链接复制并发送给学员填写>>{{ enrollment_link }}</p>
-    {% endif %}
+    <br>
+    <hr>
+    <p id="url_adress"></p>
+
+{% endblock %}
+{% block my_jquery %}
+    <script>
+    $(function () {
+        var customer_val = $('select[name="customer"]').val();
+        var classes_val = $('select[name="classes"]').val();
+        post_ajax(customer_val, classes_val);
+
+        $('select').change(function () {
+           var customer_val = $('select[name="customer"]').val();
+            var classes_val = $('select[name="classes"]').val();
+             $('#url_adress').html('')
+            post_ajax(customer_val, classes_val);
+
+        })
+        $('#change_btn_type').on('click','button', function () {
+            var customer_val = $('select[name="customer"]').val();
+            var classes_val = $('select[name="classes"]').val();
+           $.post('{% url "stu_enrollment" %}',
+               {
+                   'customer': customer_val,
+                   'classes' : classes_val
+               },function(data) {
+               if (data.contract_url) {
+                   $('#url_adress').html('请将此链接复制并发送给学员填写>>'+data.contract_url)
+               }
+           })
+        });
+    });
+
+    function post_ajax(customer_val, classes_val){
+        $.post('{% url "stu_status" %}',{
+            'customer':customer_val,
+            'classes':classes_val
+        },function(data){
+            if (data.contract_sign=='ok'){
+                $('#contract_status').html('合同已生成，未同意')
+                $('#change_btn_type').html('<button class="btn btn-success" >下一步</button>')
+            }else if (data.contract_sign=='false'){
+                $('#contract_status').html('合同未生成或此班级无此人')
+                $('#change_btn_type').html('<button class="btn btn-success">下一步</button>')
+            }else if (data.contract_status_agreed=='ok'){
+                $('#contract_status').text('合同已同意')
+               $('#change_btn_type').html('<button class="btn btn-success">下一步</button>')
+            }else if (data.contract_status_approved=='ok'){
+                $('#contract_status').html('合同已审核')
+                var customer_id = parseInt(customer_val);
+                var class_id = parseInt(classes_val);
+{#                $('#change_btn_type').html("<a href="+"{% url 'contract_payment' customer_id class_id %}"+'>下一步 </a>')#}
+                $('#change_btn_type').html("<a class='btn btn-success' href='/crm/stu_enrollment/"
+                                            +customer_id+ '/'+class_id+ "/contract_payment/'"+'>下一步 </a>')
+            }
+
+        })
+    };
+
+    </script>
 {% endblock %}
 
 

@@ -12,12 +12,12 @@
             <h3 class="panel-title">学员报名信息</h3>
         </div>
         <div class="panel-body">
-            <form class="form" method="post" onsubmit="beforesubmit(this)">
+            <form class="form" method="post" onsubmit="return beforesubmit(this)">
             {% csrf_token %}
             {% for field in stu_forms %}
                 <div class="form-group col-lg-6">
                     <label  class="col-sm-2 control-label">{{ field.label }}</label>
-                    <div class="col-sm-6" >
+                    <div class="col-sm-5" >
                         {{ field }}
                         <span style="color:red;"> {{ field.errors.0 }}</span>
                     </div>
@@ -35,7 +35,8 @@
                     {{ stu_obj.class_grade.course.price }}
                 </div>
             </div>
-             <hr>
+             <br>
+
             <div>
             <pre style="height: 200px;">{{ stu_obj.class_grade.contract_template.content }}</pre>
             </div>
@@ -46,9 +47,20 @@
                 <input type="submit" class="btn btn-success " value="提交" >
                 </div>
             </div>
-
             </form>
+        <br>
         <hr>
+        <br>
+
+        <p>已上传的文件列表(总数限3个)：</p>
+        <ul name="file_ul">
+            {% for file in upload_files %}
+
+                <li>{{ file }} <a href="javascript:;">删除</a></li>
+
+            {% endfor %}
+        </ul>
+
         <div>
         <form action="{% url 'stu_fileupload' obj_id %}" class="dropzone" id="myAwesomeDropzone">
            <div class="fallback">
@@ -59,7 +71,7 @@
 
 
         </div>
-        <div class="panel-footer">Panel footer</div>
+        <div class="panel-footer">结束</div>
     </div>
     </div>
 
@@ -70,7 +82,15 @@
     <script src="{% static 'plugins/dropzone/dropzone.js' %}"></script>
     <script>
     function beforesubmit(ele) {
-        $(':disabled').removeAttr('disabled')
+        $(':disabled').removeAttr('disabled');
+        if ($('ul[name]').children().length == 0) {
+            alert('请上传证件信息')
+            return false;
+        }
+        if (!$('input[name="contract_agreed"]').prop('checked')){
+            alert('请仔细阅读协议，并勾选')
+            return false;
+        }
 
     }
     Dropzone.options.myAwesomeDropzone = {
@@ -84,13 +104,35 @@
         else { done(); }
     }
     };
+    Dropzone.options.myAwesomeDropzone = false;
     $(function() {
-{#        Dropzone.options.myAwesomeDropzone = false;#}
-        var myDropzone = new Dropzone('#myAwesomeDropzone');
-        myDropzone.on("complete", function (file) {
-            myDropzone.removeFile(file);
+
+{#        var file_list = $('ul[name]').text().replace(/[\r\n]/g,"").replace(/[ ]/g,"")#}
+{#                        .split('删除');#}
+
+        var myDropzone = new Dropzone("#myAwesomeDropzone");
+        myDropzone.on("success", function (file,response) {
+            var data = JSON.parse(response);
+            if (!data.status){
+                alert(data.err_msg)
+            }else {
+                if (data.file_obj_name){
+{#                var index =  $.inArray(data.file_obj_name, file_list);#}
+{#                if (index < 0) {#}
+{#                    file_list.push(data.file_obj_name);#}
+                    $('ul[name]').append('<li>' + data.file_obj_name + '<a href="javascript:;">删除</a></li>')
+                }}
         })
     });
+    $('ul li a').on('click', function(){
+        var file_name = $(this).parent().text();
+        var $li = $(this).parent()
+        $.post("{% url 'stu_agreement' obj_id %}",{'file_name':file_name,},function(data){
+            if (data) {
+                $li.remove();
+            }
+        })
 
+    });
     </script>
 {% endblock %}

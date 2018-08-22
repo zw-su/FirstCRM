@@ -50,6 +50,38 @@
     <script src='{% static "js/holder.min.js" %}' ></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src='{% static "js/ie10-viewport-bug-workaround.js" %}' ></script>
+   <script type="text/javascript">
+        function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    } //end csrf
+    $(document).ready(function() {
+        //set csrf befor send ajax
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+            }
+        })});//end csrf
+    </script>
   {% block my_jquery %}
   {% endblock %}
 

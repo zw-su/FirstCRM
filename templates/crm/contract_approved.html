@@ -1,0 +1,51 @@
+{% extends 'index.html' %}
+
+{% block right-body-content %}
+    <h2>学生报名审核页</h2>
+
+
+    {% for field in stu_forms %}
+        <div class="form-group col-lg-6">
+            <label  class="col-sm-2 control-label">{{ field.label }}</label>
+            <div class="col-sm-5" >
+                {{ field }}
+                <span style="color:red;"> {{ field.errors.0 }}</span>
+            </div>
+        </div>
+    {% endfor %}
+    <form class="form-horizontal" method="post" onsubmit="return beforesubmit(this)">
+    {% csrf_token %}
+    {% for field in contract_forms %}
+        <div class="form-group col-lg-6">
+            <label  class="col-sm-2 control-label">{{ field.label }}</label>
+            <div class="col-sm-5"  >
+                {{ field }}
+                <span style="color:red;"> {{ field.errors.0 }}</span>
+            </div>
+        </div>
+    {% endfor %}
+
+
+        <br>
+        <div class="form-group">
+        <div class="col-sm-offset-7 col-sm-10">
+            <a href="{% url 'stu_enrollment' %}">上一步</a>
+          <input type="submit" class="btn btn-success " value="审核通过" >
+        </div>
+        </div>
+    </form>
+
+{% endblock %}
+{% block my_jquery %}
+    <script>
+        function beforesubmit(ele){
+            $(':disabled').removeAttr('disabled');
+            if (!$('input[name="contract_approved"]').prop('checked')) {
+                alert('请勾选审核按钮')
+                return false;
+            }
+
+        }
+    </script>
+
+{% endblock %}
